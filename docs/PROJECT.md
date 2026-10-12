@@ -5,6 +5,7 @@
 Task Tracker — учебный backend-проект для практики Clean Architecture, EF Core, тестирования и совместной работы с AI-агентом.
 Цель — наработать процесс: сначала документация, потом код, итерациями и без лишних абстракций.
 В результате получится backend MVP (CRUD задач) и отдельный frontend на Vue 3 после прохождения MVP.
+Проект состоит из двух частей: backend (реализован) и frontend (в разработке).
 
 ## 2. Стек
 
@@ -17,7 +18,7 @@ Task Tracker — учебный backend-проект для практики Cle
 | Валидация | FluentValidation |
 | Тесты | xUnit + NSubstitute |
 | API-документация | OpenAPI / Swagger UI |
-| Frontend (позже) | Vue 3 + TypeScript + Vite |
+| Frontend | Vue 3 + TypeScript + Vite + Pinia + Naive UI |
 
 ## 3. Структура репозитория
 
@@ -38,7 +39,8 @@ TaskTracker/
     │       ├── PS.TaskTracker.Common/
     │       ├── PS.TaskTracker.Domain/
     │       └── PS.TaskTracker.Infrastructure/
-    └── Frontend/  (пусто, этап после MVP)
+    └── Frontend/
+        └── PS.TaskTracker/   — frontend на Vue 3
 ```
 
 Назначение слоёв:
@@ -69,6 +71,7 @@ TaskTracker/
 | `docs/ARCHITECTURE.md` | Слои, зависимости, ответственность | При изменении структуры проекта | создан |
 | `docs/DECISIONS.md` | Журнал архитектурных решений | Перед выбором подхода, после решения | создан |
 | `docs/ROADMAP.md` | Этапы разработки с чекбоксами | Для оценки прогресса | создан |
+| `docs/FRONTEND.md` | Стек, структура, архитектура frontend | Перед работой над frontend | создан |
 
 ## 6. Что вне MVP
 

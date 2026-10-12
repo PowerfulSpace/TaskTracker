@@ -26,7 +26,8 @@ TaskTracker/
 └── src/
     ├── Backend/
     │   └── PS.TaskTracker/   — solution backend'а
-    └── Frontend/             — пусто, после MVP
+    └── Frontend/
+        └── PS.TaskTracker/   — frontend на Vue 3
 ```
 
 ## Документация

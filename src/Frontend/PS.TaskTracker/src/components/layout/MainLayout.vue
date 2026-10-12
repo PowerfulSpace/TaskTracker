@@ -1,19 +1,17 @@
 <template>
   <div class="layout">
-    <Header />
-
+    <AppHeader />
     <n-layout-content content-style="padding: 20px;">
       <router-view />
     </n-layout-content>
-
-    <Footer />
+    <AppFooter />
   </div>
 </template>
 
 <script setup lang="ts">
-import { NLayout, NLayoutContent } from 'naive-ui'
-import Header from '@/components/layout/Header.vue'
-import Footer from '@/components/layout/Footer.vue'
+import { NLayoutContent } from 'naive-ui'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import AppFooter from '@/components/layout/AppFooter.vue'
 </script>
 
 <style scoped>

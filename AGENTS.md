@@ -40,6 +40,7 @@ Solution: `src/Backend/PS.TaskTracker/PS.TaskTracker.slnx`.
 | Инфраструктура (EF Core, MSSQL, миграции) | `docs/ARCHITECTURE.md` §6 |
 | Причины решений | `docs/DECISIONS.md` |
 | План и статус | `docs/ROADMAP.md` |
+| Frontend (Vue, компоненты, сторы, UI) | `docs/FRONTEND.md` |
 
 ## 4. Правила работы
 
@@ -75,6 +76,8 @@ Namespace — file-scoped.
 `Infrastructure` → `Application`, `Domain`, `Common`.
 `API` → `Application`, `Infrastructure`, `Domain`, `Common`.
 `Infrastructure` не течёт в `Application`: интерфейсы репозиториев живут в `Application`, реализации — в `Infrastructure`.
+
+Frontend (`src/Frontend/PS.TaskTracker/`) — отдельное приложение со своей структурой. Не подчиняется правилам зависимостей backend-проектов. Соглашения — в `docs/FRONTEND.md`.
 
 ## 8. Формат отчёта после задачи
 
