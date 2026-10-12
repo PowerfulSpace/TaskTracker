@@ -1,6 +1,6 @@
 <template>
   <n-layout-footer bordered class="footer">
-    <n-text depth="3"> © {{ year }} My App </n-text>
+    <n-text depth="3"> © {{ year }} Task Tracker </n-text>
   </n-layout-footer>
 </template>
 
