@@ -1,0 +1,244 @@
+# ARCHITECTURE — слои, зависимости, ответственность
+
+## 1. Назначение документа
+
+ARCHITECTURE описывает, как устроен код: слои, зависимости, размещение компонентов, DI, потоки выполнения и обработку ошибок.
+Что делает система — в `docs/SPEC.md`; доменные правила — в `docs/DOMAIN.md`; здесь их нет.
+
+## 2. Слои и зависимости
+
+```text
+                ┌───────────────┐
+                │      API      │
+                └──┬─────┬──────┘
+                   │     │
+        ┌──────────┘     └──────────┐
+        ▼                           ▼
+┌───────────────┐          ┌────────────────────┐
+│  Application  │◄─────────│  Infrastructure    │
+└──┬─────┬──────┘          └────────┬───────────┘
+   │     │                          │
+   │     └──────────┬───────────────┘
+   ▼                ▼
+┌─────────┐   ┌──────────┐
+│ Domain  │   │  Common  │
+└─────────┘   └──────────┘
+```
+
+Стрелки на диаграмме упрощены: показаны не все связи, чтобы не перегружать схему. Полный список зависимостей — в таблице ниже.
+
+| Слой | Зависит от | Проект |
+|---|---|---|
+| Domain | ни от кого | `PS.TaskTracker.Domain` |
+| Common | ни от кого | `PS.TaskTracker.Common` |
+| Application | Domain, Common | `PS.TaskTracker.Application` |
+| Infrastructure | Application, Domain, Common | `PS.TaskTracker.Infrastructure` |
+| API | Application, Infrastructure, Common | `PS.TaskTracker.API` |
+
+Направление зависимостей — внутрь: домен не знает ни о ком, инфраструктура знает о домене и приложении, API — о всех. Обратных ссылок нет: Application не ссылается на Infrastructure, Domain — ни на кого.
+
+## 3. Domain
+
+В `PS.TaskTracker.Domain` лежит:
+
+- `TaskItem`, `TaskItemStatus` — сущность и enum статусов;
+- `DomainException`, `DomainValidationException`, `DomainConflictException` — исключения домена.
+
+Не лежит (и не должно появляться): EF Core, DbContext, атрибуты, репозитории, `DateTime.UtcNow`, `ILogger`, `JsonConverter`, DTO, что-либо из ASP.NET Core.
+
+Детали модели, инварианты и переходы — в `docs/DOMAIN.md`.
+
+## 4. Common
+
+В MVP проект `PS.TaskTracker.Common` пуст. Задел на будущее: общие утилиты, базовые типы логирования, абстракции, разделяемые между слоями.
+
+Сейчас не используется ни одним слоем. Пустой проект сохранён, чтобы не ломать структуру solution при появлении общего кода.
+
+## 5. Application
+
+В `PS.TaskTracker.Application` лежит:
+
+- `ITaskRepository`, `IUnitOfWork` — интерфейсы инфраструктуры (здесь только абстракции, реализации — в Infrastructure);
+- `IHandler<TRequest, TResponse>` — базовый интерфейс сценариев;
+- Handlers — по одному на use case: `CreateTaskHandler`, `GetTaskHandler`, `GetTasksHandler`, `UpdateTaskHandler`, `DeleteTaskHandler`, `StartTaskHandler`, `CompleteTaskHandler`, `ReopenTaskHandler`, `ReturnTaskToTodoHandler`;
+- `TaskDto` — прикладная DTO, возвращается handlers наружу;
+- Request-модели: `CreateTaskCommand`, `UpdateTaskCommand` и т.п. (см. раздел 11 про именование);
+- FluentValidation-валидаторы — рядом с handlers;
+- `NotFoundException`, `ValidationException` — исключения прикладного уровня.
+
+### Как устроен IHandler
+
+```csharp
+public interface IHandler<in TRequest, TResponse>
+{
+    Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken);
+}
+```
+
+Один handler = один класс = один сценарий. Handlers регистрируются в DI как `IHandler<TRequest, TResponse>`.
+
+Для сценариев без результата (например, `DeleteTask`) используется `IHandler<TRequest, Unit>` с типом `Unit` в Application. `Unit` — пустой `readonly struct` с единственным значением по умолчанию. Основной интерфейс — `IHandler<TRequest, TResponse>`; `Unit` — частный случай, а не отдельный интерфейс.
+
+### Вызов из контроллера
+
+Через DI — контроллер инжектит нужные handlers:
+
+```csharp
+public TasksController(IHandler<CreateTaskCommand, TaskDto> createHandler, ...)
+```
+
+### Валидация
+
+FluentValidation-валидаторы живут в Application рядом с handler'ом. Вызываются внутри handler'а — не в контроллере, не в pipeline behavior. При нарушении бросается `ValidationException` (Application-уровень, свой тип — не путать с `DomainValidationException` из Domain). Middleware маппит её в `400` + ProblemDetails + `errors`.
+
+## 6. Infrastructure
+
+В `PS.TaskTracker.Infrastructure` лежит:
+
+- `AppDbContext` — контекст EF Core;
+- Конфигурации сущностей — отдельные классы `IEntityTypeConfiguration<T>` (например, `TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>`);
+- `TaskRepository : ITaskRepository` — реализация репозитория;
+- `UnitOfWork : IUnitOfWork` — реализация UoW;
+- Миграции EF Core;
+- `DependencyInjection.AddInfrastructure(...)` — точка регистрации.
+
+Репозиторий возвращает домен (`TaskItem`), без `SaveChanges` — сохранение делает UoW. Для чтения — `AsNoTracking()`, для изменения — tracking (по умолчанию EF Core).
+
+### Регистрация
+
+`AddInfrastructure(connectionString)` регистрирует DbContext, репозиторий, UoW. Вызывается из `Program.cs` вместе с `AddApplication()`.
+
+## 7. API
+
+В `PS.TaskTracker.API` лежит:
+
+- Controllers (`TasksController`);
+- HTTP-DTO: `CreateTaskRequest`, `UpdateTaskRequest`, `TaskResponse`;
+- `ExceptionHandlingMiddleware` — ловит исключения, возвращает ProblemDetails (RFC 7807);
+- Вызов `AddApplication()` и `AddInfrastructure()` из `Program.cs` (реализации методов живут в Application и Infrastructure соответственно, см. §6 и §11);
+- Настройка JSON: глобальный `JsonStringEnumConverter`, чтобы `TaskItemStatus` сериализовался как `"Todo"`, `"InProgress"`, `"Done"`;
+- Swagger/OpenAPI.
+
+Контроллер не содержит бизнес-логики: принимает HTTP-запрос, маппит в Application-модель, вызывает handler, маппит ответ обратно.
+
+## 8. Поток выполнения сценария
+
+### Create (создание задачи)
+
+```text
+HTTP POST /api/tasks
+  → TasksController.Create
+      → маппинг CreateTaskRequest (HTTP) → CreateTaskCommand (Application)
+      → IHandler<CreateTaskCommand, TaskDto>.HandleAsync
+          → FluentValidation-валидатор (нарушение → ValidationException → 400)
+          → TaskItem.Create(title, description, utcNow)   [Domain]
+              (нарушение инвариантов → DomainValidationException → 400)
+          → ITaskRepository.AddAsync(task)
+          → IUnitOfWork.SaveChangesAsync()
+          → маппинг TaskItem → TaskDto
+      ← TaskDto
+  ← маппинг TaskDto → TaskResponse (HTTP)
+HTTP 201 Created + Location + TaskResponse
+```
+
+### Start (переход статуса)
+
+```text
+HTTP POST /api/tasks/{id}/start
+  → TasksController.Start
+      → маппинг: id из маршрута → StartTaskCommand (Application)
+      → IHandler<StartTaskCommand, TaskDto>.HandleAsync
+          → ITaskRepository.GetByIdAsync(id)
+              (не найдено → NotFoundException → 404)
+          → task.Start(utcNow)                              [Domain]
+              (недопустимый переход → DomainConflictException → 409)
+          → IUnitOfWork.SaveChangesAsync()
+          → маппинг TaskItem → TaskDto
+      ← TaskDto
+  ← маппинг TaskDto → TaskResponse (HTTP)
+HTTP 200 OK + TaskResponse
+```
+
+## 9. Обработка ошибок
+
+| Исключение | Слой | HTTP |
+|---|---|---|
+| `ValidationException` | Application | `400` + `errors` |
+| `NotFoundException` | Application | `404` |
+| `DomainValidationException` | Domain | `400` |
+| `DomainConflictException` | Domain | `409` |
+| всё остальное | — | `500` |
+
+`ExceptionHandlingMiddleware` живёт в API. Ловит исключения, возвращает ProblemDetails (RFC 7807): `type`, `title`, `status`, `detail`, `instance`. Для ошибок валидации дополнительно `errors` — словарь «поле → список сообщений». Формат тел — в `docs/SPEC.md`, раздел 8.
+
+## 10. Маппинг
+
+Границы маппинга — три уровня:
+
+```text
+CreateTaskRequest (HTTP)  →  CreateTaskCommand (Application)  →  TaskItem (Domain)
+TaskItem (Domain)         →  TaskDto (Application)            →  TaskResponse (HTTP)
+```
+
+- Handler принимает request-модель прикладного уровня (не API-DTO) и возвращает `TaskDto` (прикладную, не домен).
+- API-слой маппит HTTP-DTO ↔ Application-DTO.
+- Маппинг — вручную, extension-методами. Без AutoMapper.
+
+Пример `TaskItem → TaskDto → TaskResponse`:
+
+```text
+TaskItem (Domain)                TaskDto (Application)         TaskResponse (HTTP)
+  Id: Guid                  →     Id: Guid                 →     id: Guid
+  Title: string             →     Title: string            →     title: string
+  Description: string?      →     Description: string?     →     description: string?
+  Status: TaskItemStatus    →     Status: string           →     status: string
+  CreatedAtUtc: DateTime    →     CreatedAtUtc: DateTime   →     createdAtUtc: DateTime
+  UpdatedAtUtc: DateTime    →     UpdatedAtUtc: DateTime   →     updatedAtUtc: DateTime
+```
+
+Enum → string выполняется в Handler'е при формировании `TaskDto` (`Status: string`). Глобальный `JsonStringEnumConverter` в API — страховка на случай, если enum попадёт в JSON напрямую (см. ADR-011).
+
+## 11. Правила именования
+
+| Что | Где живёт | Как называется | Примеры |
+|---|---|---|---|
+| HTTP-DTO запроса | API | `*Request` | `CreateTaskRequest`, `UpdateTaskRequest` |
+| HTTP-DTO ответа | API | `*Response` | `TaskResponse` |
+| Request-модель handler'а | Application | `*Command` / `*Query` | `CreateTaskCommand`, `GetTaskQuery` |
+| Прикладная DTO | Application | `*Dto` | `TaskDto` |
+| Handler | Application | `*Handler` | `CreateTaskHandler`, `StartTaskHandler` |
+| Валидатор | Application | `*Validator` | `CreateTaskValidator` |
+| Репозиторий | Application (интерфейс), Infrastructure (реализация) | `I*Repository`, `*Repository` | `ITaskRepository`, `TaskRepository` |
+| UoW | Application (интерфейс), Infrastructure (реализация) | `IUnitOfWork`, `UnitOfWork` | — |
+| Исключения домена | Domain | `Domain*Exception` | `DomainValidationException` |
+| Исключения приложения | Application | `ValidationException`, `NotFoundException` | — |
+| Конфигурация EF | Infrastructure | `*Configuration` | `TaskItemConfiguration` |
+| Точка входа DI | Application, Infrastructure | `DependencyInjection.Add*` | `AddApplication`, `AddInfrastructure` |
+
+Правило именования request-моделей:
+
+- `*Command` — сценарии, изменяющие состояние: `CreateTaskCommand`, `UpdateTaskCommand`, `DeleteTaskCommand`, `StartTaskCommand`, `CompleteTaskCommand`, `ReopenTaskCommand`, `ReturnTaskToTodoCommand`.
+- `*Query` — сценарии только для чтения: `GetTaskQuery` (одна задача), `GetTasksQuery` (список).
+- Суффикс `*Request` на уровне Application не используется — он зарезервирован за HTTP-DTO в API.
+
+## 12. Что осознанно не используется
+
+| Что | Почему |
+|---|---|
+| MediatR | Handlers и DI достаточно; MediatR добавляет слой абстракции без выигрыша в MVP. |
+| AutoMapper | Маппинг трёх DTO-уровней мал и прозрачен; вручную понятнее и без магии. |
+| CQRS-фреймворки | Разделение command/query — соглашение об именовании, не отдельный фреймворк. |
+| Generic Repository | Один `ITaskRepository` под конкретную сущность; generic-интерфейс добавит мёртвых методов. |
+| Микросервисы | Монолит на один деплой; микросервисы — избыточно для учебного MVP. |
+| Vertical Slice | Слои по Clean Architecture; vertical slice — другой способ организации, конфликтует с выбранным. |
+| Minimal API | Controllers проще для группировки эндпоинтов и Swagger-интеграции в данном MVP. |
+| Serilog | Стандартного `ILogger<T>` достаточно; Serilog — отдельное решение для логирования. |
+
+## 13. Открытые вопросы
+
+Вне MVP, осознанно отложено:
+
+- Интеграционные тесты (сейчас только юнит-тесты Domain и Application).
+- Кэширование.
+- Пагинация, фильтры, сортировка списка задач.
+- Аутентификация, пользователи, роли.
