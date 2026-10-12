@@ -1,0 +1,6 @@
+@PS.TaskTracker.API_HostAddress = http://localhost:5029
+
+GET {{PS.TaskTracker.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

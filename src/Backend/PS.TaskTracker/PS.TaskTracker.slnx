@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="PS.TaskTracker.API/PS.TaskTracker.API.csproj" />
+  <Project Path="PS.TaskTracker.Application/PS.TaskTracker.Application.csproj" />
+  <Project Path="PS.TaskTracker.Common/PS.TaskTracker.Common.csproj" />
+  <Project Path="PS.TaskTracker.Domain/PS.TaskTracker.Domain.csproj" />
+  <Project Path="PS.TaskTracker.Infrastructure/PS.TaskTracker.Infrastructure.csproj" />
+</Solution>
