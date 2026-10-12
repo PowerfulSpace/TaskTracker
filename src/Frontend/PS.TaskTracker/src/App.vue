@@ -1,11 +1,15 @@
 <template>
-  <MainLayout />
+  <n-config-provider :locale="ruRU" :date-locale="dateRuRU">
+    <n-message-provider>
+      <n-dialog-provider>
+        <MainLayout />
+      </n-dialog-provider>
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
 <script setup lang="ts">
+import { NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
+import { ruRU, dateRuRU } from 'naive-ui'
 import MainLayout from '@/components/layout/MainLayout.vue'
 </script>
-
-<style>
-/* Глобальные стили при необходимости */
-</style>
