@@ -4,7 +4,7 @@
 
 Учебный backend-проект для практики Clean Architecture, EF Core и тестирования.
 Управление задачами с переходами статусов: Todo → InProgress → Done.
-Backend MVP — в разработке; frontend на Vue 3 — после завершения backend MVP.
+Backend MVP завершён. Следующий этап — frontend на Vue 3.
 
 ## Стек
 
@@ -43,9 +43,48 @@ TaskTracker/
 
 ## Текущий статус
 
-Этап 4 (Infrastructure) завершён. Следующий — Этап 5: реализация API.
+Backend MVP завершён (Этапы 0–6). Все 44 теста зелёные, 14 сценариев API проверены через curl. Следующий этап — frontend на Vue 3.
 Детали — в [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Запуск
 
-Инструкция по запуску будет добавлена после завершения backend MVP (Этап 6 в docs/ROADMAP.md).
+### Требования
+
+- .NET 10 SDK
+- SQL Server (Developer или Express), локальный инстанс
+- `dotnet-ef` (глобальный инструмент): `dotnet tool install --global dotnet-ef`
+
+### Шаги
+
+1. Настроить строку подключения в `src/Backend/PS.TaskTracker/PS.TaskTracker.API/appsettings.Development.json`:
+
+   ```json
+   "ConnectionStrings": {
+     "Default": "Server=localhost;Database=TaskTracker;Trusted_Connection=True;TrustServerCertificate=True;"
+   }
+   ```
+
+2. Применить миграции:
+
+   ```text
+   dotnet ef database update --project src/Backend/PS.TaskTracker/PS.TaskTracker.Infrastructure --startup-project src/Backend/PS.TaskTracker/PS.TaskTracker.Infrastructure
+   ```
+
+3. Запустить API:
+
+   ```text
+   dotnet run --project src/Backend/PS.TaskTracker/PS.TaskTracker.API
+   ```
+
+4. Открыть Swagger UI: `https://localhost:7190/swagger` (или порт из launchSettings.json).
+
+### Тесты
+
+```text
+dotnet test
+```
+
+Или через скрипт:
+
+- Windows: `.\scripts\verify.ps1`
+- Linux / macOS: `./scripts/verify.sh`

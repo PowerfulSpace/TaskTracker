@@ -5,7 +5,7 @@
 
 ## Текущий статус
 
-**Текущий этап:** 5 (API), не начат.
+**Текущий этап:** 6 (проверка MVP) — выполнен. Backend MVP готов.
 
 **Что сделано:**
 - Этап 0: solution настроен (пять проектов, ссылки по Clean Architecture, централизованная конфигурация, сборка проходит).
@@ -13,9 +13,11 @@
 - Этап 2: закрыт. Реализован Domain: `TaskItem`, `TaskItemStatus`, исключения, фабрика `Create`, переходы, `UpdateDetails`, unit-тесты (22 теста).
 - Этап 3: закрыт. Реализован Application: MediatR, handlers (7 команд + 2 запроса), `ValidationBehavior`, валидаторы, DTO, исключения, unit-тесты (22 теста).
 - Этап 4: закрыт. Реализован Infrastructure: `AppDbContext`, конфигурации, `TaskRepository`, `UnitOfWork`, `AddInfrastructure`, `AppDbContextFactory`, миграция `InitialCreate` (44 теста зелёные, `dotnet ef migrations list` показывает миграцию).
+- Этап 5: закрыт. Реализован API: `TasksController` (CRUD + endpoints переходов статусов), HTTP-DTO, `ExceptionHandlingMiddleware`, `JsonStringEnumConverter`, Swagger (Swashbuckle), DI из `Program.cs`, строка подключения в `appsettings.Development.json`.
+- Этап 6: закрыт. Проверка MVP: миграция применена, Swagger UI отвечает (9 endpoints), 14/14 сценариев через `curl` (CRUD, переходы, ошибочные), инструкция запуска в `README.md`.
 
 **Что предстоит:**
-- Этап 5: реализация API.
+- Этап 7: Frontend на Vue 3.
 
 ## Этапы
 
@@ -102,35 +104,36 @@
 
 **Критерий завершения:** БД создаётся миграцией, данные сохраняются и читаются.
 
-### Этап 5. API — не начат
+### Этап 5. API — выполнен
 
 **Цель:** Реализовать HTTP-слой: контроллеры, DTO, middleware, JSON, Swagger.
 
 **Задачи:**
-- [ ] `TasksController` — CRUD.
-- [ ] Endpoints переходов статусов.
-- [ ] HTTP-DTO: `CreateTaskRequest`, `UpdateTaskRequest`, `TaskResponse`.
-- [ ] Маппинг HTTP-DTO ↔ Application-DTO вручную.
-- [ ] `ExceptionHandlingMiddleware`.
-- [ ] Настройка `JsonStringEnumConverter`.
-- [ ] Swagger / OpenAPI.
-- [ ] Вызов `AddApplication()` и `AddInfrastructure()` из `Program.cs`.
-- [ ] Строка подключения в `appsettings.Development.json`.
+- [x] `TasksController` — CRUD.
+- [x] Endpoints переходов статусов.
+- [x] HTTP-DTO: `CreateTaskRequest`, `UpdateTaskRequest`, `TaskResponse`.
+- [x] Маппинг HTTP-DTO ↔ Application-DTO вручную.
+- [x] `ExceptionHandlingMiddleware`.
+- [x] Настройка `JsonStringEnumConverter`.
+- [x] Swagger / OpenAPI.
+- [x] Вызов `AddApplication()` и `AddInfrastructure()` из `Program.cs`.
+- [x] Строка подключения в `appsettings.Development.json`.
 
 **Критерий завершения:** Все endpoints отвечают согласно SPEC.md.
 
-### Этап 6. Проверка MVP — не начат
+### Этап 6. Проверка MVP — выполнен
 
 **Цель:** Убедиться, что backend MVP работает целиком и соответствует документации.
 
 **Задачи:**
-- [ ] Прогон CRUD через Swagger.
-- [ ] Прогон всех переходов статусов.
-- [ ] Проверка ошибочных сценариев (404, 409, 400, 500).
-- [ ] Прогон unit-тестов.
-- [ ] Проверка маппинга ошибок в ProblemDetails.
-- [ ] Проверка соответствия кода документации.
-- [ ] Инструкция запуска в README.md.
+- [x] Прогон CRUD через Swagger.
+- [x] Прогон всех переходов статусов.
+- [x] Проверка ошибочных сценариев (404, 409, 400, 500).
+- [x] Прогон unit-тестов.
+- [x] Проверка маппинга ошибок в ProblemDetails.
+- [x] Проверка соответствия кода документации.
+- [x] Инструкция запуска в README.md.
+- [x] Прогон 14 сценариев через `curl` (CRUD + переходы + ошибочные) — 14/14 успешно.
 
 **Критерий завершения:** Backend MVP работает, документация соответствует реализации, инструкция воспроизводима.
 

@@ -230,6 +230,7 @@ TaskDto.Status — TaskItemStatus (enum). Enum → string выполняется
 | Vertical Slice | Слои по Clean Architecture; vertical slice — другой способ организации, конфликтует с выбранным. |
 | Minimal API | Controllers проще для группировки эндпоинтов и Swagger-интеграции в данном MVP. |
 | Serilog | Стандартного `ILogger<T>` достаточно; Serilog — отдельное решение для логирования. |
+| Microsoft.AspNetCore.OpenApi | Заменён на Swashbuckle.AspNetCore (ADR-027) — нужен Swagger UI. |
 
 ## 13. Открытые вопросы
 
