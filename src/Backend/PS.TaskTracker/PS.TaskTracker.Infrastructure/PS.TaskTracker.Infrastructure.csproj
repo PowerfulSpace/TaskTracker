@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PS.TaskTracker.Application\PS.TaskTracker.Application.csproj" />
     <ProjectReference Include="..\PS.TaskTracker.Common\PS.TaskTracker.Common.csproj" />
     <ProjectReference Include="..\PS.TaskTracker.Domain\PS.TaskTracker.Domain.csproj" />

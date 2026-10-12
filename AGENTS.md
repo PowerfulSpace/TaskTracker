@@ -56,7 +56,7 @@ Solution: `src/Backend/PS.TaskTracker/PS.TaskTracker.slnx`.
 Не создавай и не удаляй файлы за пределами задачи.
 Не добавляй NuGet-пакеты без указания в промпте.
 Не меняй архитектурные решения (ссылки между проектами, состав слоёв) без обсуждения.
-Не добавляй MediatR, AutoMapper, CQRS-фреймворки, микросервисы и прочие абстракции «на будущее».
+Не добавляй AutoMapper, CQRS-фреймворки, микросервисы и прочие абстракции «на будущее».
 
 ## 6. Соглашения по коду
 
@@ -73,7 +73,7 @@ Namespace — file-scoped.
 `Common` — ни от кого не зависит.
 `Application` → `Domain`, `Common`.
 `Infrastructure` → `Application`, `Domain`, `Common`.
-`API` → `Application`, `Infrastructure`, `Common`.
+`API` → `Application`, `Infrastructure`, `Domain`, `Common`.
 `Infrastructure` не течёт в `Application`: интерфейсы репозиториев живут в `Application`, реализации — в `Infrastructure`.
 
 ## 8. Формат отчёта после задачи

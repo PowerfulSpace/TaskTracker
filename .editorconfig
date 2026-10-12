@@ -42,3 +42,8 @@ dotnet_diagnostic.CS8625.severity = error
 # IDE0005 не может быть включён на этапе сборки без GenerateDocumentationFile=true
 # (https://github.com/dotnet/roslyn/issues/41640), поэтому severity = suggestion
 dotnet_diagnostic.IDE0005.severity = suggestion
+
+# EF Core миграции генерируются с block-scoped namespace — не переписывать
+[src/Backend/PS.TaskTracker/PS.TaskTracker.Infrastructure/Migrations/*.cs]
+csharp_style_namespace_declarations = block_scoped:none
+dotnet_diagnostic.IDE0161.severity = none

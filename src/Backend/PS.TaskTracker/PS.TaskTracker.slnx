@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="../../../tests/Backend/PS.TaskTracker.Application.Tests/PS.TaskTracker.Application.Tests.csproj" />
   <Project Path="../../../tests/Backend/PS.TaskTracker.Domain.Tests/PS.TaskTracker.Domain.Tests.csproj" />
   <Project Path="PS.TaskTracker.API/PS.TaskTracker.API.csproj" />
   <Project Path="PS.TaskTracker.Application/PS.TaskTracker.Application.csproj" />

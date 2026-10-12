@@ -10,16 +10,17 @@ ARCHITECTURE описывает, как устроен код: слои, зав�
 ```text
                 ┌───────────────┐
                 │      API      │
-                └──┬─────┬──────┘
-                   │     │
-        ┌──────────┘     └──────────┐
-        ▼                           ▼
-┌───────────────┐          ┌────────────────────┐
-│  Application  │◄─────────│  Infrastructure    │
-└──┬─────┬──────┘          └────────┬───────────┘
-   │     │                          │
-   │     └──────────┬───────────────┘
-   ▼                ▼
+                └──┬─────────┬─┬┘
+                   │         │ │
+        ┌──────────┘         │ └───────────┐
+        ▼                    │             ▼
+┌───────────────┐            │  ┌────────────────────┐
+│  Application  │◄───────────┼──│  Infrastructure    │
+└──┬─────┬──────┘            │  └────────┬───────────┘
+   │     │                   │             │
+   │     └──────────┬────────┼─────────────┘
+   │  ┌─────────────┘        │
+   ▼  ▼                      ▼
 ┌─────────┐   ┌──────────┐
 │ Domain  │   │  Common  │
 └─────────┘   └──────────┘
@@ -33,7 +34,7 @@ ARCHITECTURE описывает, как устроен код: слои, зав�
 | Common | ни от кого | `PS.TaskTracker.Common` |
 | Application | Domain, Common | `PS.TaskTracker.Application` |
 | Infrastructure | Application, Domain, Common | `PS.TaskTracker.Infrastructure` |
-| API | Application, Infrastructure, Common | `PS.TaskTracker.API` |
+| API | Application, Infrastructure, Domain, Common | `PS.TaskTracker.API` |
 
 Направление зависимостей — внутрь: домен не знает ни о ком, инфраструктура знает о домене и приложении, API — о всех. Обратных ссылок нет: Application не ссылается на Infrastructure, Domain — ни на кого.
 
@@ -59,37 +60,30 @@ ARCHITECTURE описывает, как устроен код: слои, зав�
 В `PS.TaskTracker.Application` лежит:
 
 - `ITaskRepository`, `IUnitOfWork` — интерфейсы инфраструктуры (здесь только абстракции, реализации — в Infrastructure);
-- `IHandler<TRequest, TResponse>` — базовый интерфейс сценариев;
-- Handlers — по одному на use case: `CreateTaskHandler`, `GetTaskHandler`, `GetTasksHandler`, `UpdateTaskHandler`, `DeleteTaskHandler`, `StartTaskHandler`, `CompleteTaskHandler`, `ReopenTaskHandler`, `ReturnTaskToTodoHandler`;
+- Request-модели (`*Command` / `*Query`) — реализуют `IRequest<TResponse>` (MediatR);
+- Handlers — по одному на use case, реализуют `IRequestHandler<TRequest, TResponse>` (MediatR): `CreateTaskHandler`, `GetTaskHandler`, `GetTasksHandler`, `UpdateTaskHandler`, `DeleteTaskHandler`, `StartTaskHandler`, `CompleteTaskHandler`, `ReopenTaskHandler`, `ReturnTaskToTodoHandler`;
+- `ValidationBehavior<TRequest, TResponse>` — pipeline behavior MediatR для валидации;
 - `TaskDto` — прикладная DTO, возвращается handlers наружу;
-- Request-модели: `CreateTaskCommand`, `UpdateTaskCommand` и т.п. (см. раздел 11 про именование);
 - FluentValidation-валидаторы — рядом с handlers;
 - `NotFoundException`, `ValidationException` — исключения прикладного уровня.
 
-### Как устроен IHandler
+Handlers регистрируются автоматически через `AddMediatR(cfg => cfg.RegisterServicesFromAssembly(...))`.
 
-```csharp
-public interface IHandler<in TRequest, TResponse>
-{
-    Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken);
-}
-```
-
-Один handler = один класс = один сценарий. Handlers регистрируются в DI как `IHandler<TRequest, TResponse>`.
-
-Для сценариев без результата (например, `DeleteTask`) используется `IHandler<TRequest, Unit>` с типом `Unit` в Application. `Unit` — пустой `readonly struct` с единственным значением по умолчанию. Основной интерфейс — `IHandler<TRequest, TResponse>`; `Unit` — частный случай, а не отдельный интерфейс.
+Для сценариев без результата (например, `DeleteTask`) используется `MediatR.Unit`.
 
 ### Вызов из контроллера
 
-Через DI — контроллер инжектит нужные handlers:
+Через `IMediator` — контроллер отправляет команды/запросы в pipeline:
 
 ```csharp
-public TasksController(IHandler<CreateTaskCommand, TaskDto> createHandler, ...)
+public TasksController(IMediator mediator)
 ```
+
+Вызов: `await mediator.Send(new CreateTaskCommand(...), cancellationToken)`.
 
 ### Валидация
 
-FluentValidation-валидаторы живут в Application рядом с handler'ом. Вызываются внутри handler'а — не в контроллере, не в pipeline behavior. При нарушении бросается `ValidationException` (Application-уровень, свой тип — не путать с `DomainValidationException` из Domain). Middleware маппит её в `400` + ProblemDetails + `errors`.
+FluentValidation-валидаторы живут в Application рядом с handler'ом. Валидаторы вызываются автоматически через `ValidationBehavior` в pipeline MediatR. Handler'ы о валидации не знают. При нарушении бросается `ValidationException` (Application-уровень, свой тип — не путать с `DomainValidationException` из Domain). Middleware маппит её в `400` + ProblemDetails + `errors`.
 
 ## 6. Infrastructure
 
@@ -100,9 +94,10 @@ FluentValidation-валидаторы живут в Application рядом с ha
 - `TaskRepository : ITaskRepository` — реализация репозитория;
 - `UnitOfWork : IUnitOfWork` — реализация UoW;
 - Миграции EF Core;
+- `AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>` — для генерации миграций из CLI, строка подключения захардкожена только для design-time;
 - `DependencyInjection.AddInfrastructure(...)` — точка регистрации.
 
-Репозиторий возвращает домен (`TaskItem`), без `SaveChanges` — сохранение делает UoW. Для чтения — `AsNoTracking()`, для изменения — tracking (по умолчанию EF Core).
+Репозиторий возвращает домен (`TaskItem`), без `SaveChanges` — сохранение делает UoW. Сценарии чтения (`GetByIdReadOnlyAsync`, `GetAllAsync`) идут через `AsNoTracking()`; сценарии изменения (`GetByIdAsync`) — с tracking (по умолчанию EF Core).
 
 ### Регистрация
 
@@ -129,13 +124,14 @@ FluentValidation-валидаторы живут в Application рядом с ha
 HTTP POST /api/tasks
   → TasksController.Create
       → маппинг CreateTaskRequest (HTTP) → CreateTaskCommand (Application)
-      → IHandler<CreateTaskCommand, TaskDto>.HandleAsync
-          → FluentValidation-валидатор (нарушение → ValidationException → 400)
-          → TaskItem.Create(title, description, utcNow)   [Domain]
-              (нарушение инвариантов → DomainValidationException → 400)
-          → ITaskRepository.AddAsync(task)
-          → IUnitOfWork.SaveChangesAsync()
-          → маппинг TaskItem → TaskDto
+      → IMediator.Send(CreateTaskCommand)
+          → ValidationBehavior (FluentValidation; нарушение → ValidationException → 400)
+          → CreateTaskHandler
+              → TaskItem.Create(title, description, utcNow)   [Domain]
+                  (нарушение инвариантов → DomainValidationException → 400)
+              → ITaskRepository.AddAsync(task)
+              → IUnitOfWork.SaveChangesAsync()
+              → маппинг TaskItem → TaskDto
       ← TaskDto
   ← маппинг TaskDto → TaskResponse (HTTP)
 HTTP 201 Created + Location + TaskResponse
@@ -147,13 +143,15 @@ HTTP 201 Created + Location + TaskResponse
 HTTP POST /api/tasks/{id}/start
   → TasksController.Start
       → маппинг: id из маршрута → StartTaskCommand (Application)
-      → IHandler<StartTaskCommand, TaskDto>.HandleAsync
-          → ITaskRepository.GetByIdAsync(id)
-              (не найдено → NotFoundException → 404)
-          → task.Start(utcNow)                              [Domain]
-              (недопустимый переход → DomainConflictException → 409)
-          → IUnitOfWork.SaveChangesAsync()
-          → маппинг TaskItem → TaskDto
+      → IMediator.Send(StartTaskCommand)
+          → ValidationBehavior (валидаторов для команды нет → пропуск)
+          → StartTaskHandler
+              → ITaskRepository.GetByIdAsync(id)
+                  (не найдено → NotFoundException → 404)
+              → task.Start(utcNow)                              [Domain]
+                  (недопустимый переход → DomainConflictException → 409)
+              → IUnitOfWork.SaveChangesAsync()
+              → маппинг TaskItem → TaskDto
       ← TaskDto
   ← маппинг TaskDto → TaskResponse (HTTP)
 HTTP 200 OK + TaskResponse
@@ -225,7 +223,6 @@ TaskDto.Status — TaskItemStatus (enum). Enum → string выполняется
 
 | Что | Почему |
 |---|---|
-| MediatR | Handlers и DI достаточно; MediatR добавляет слой абстракции без выигрыша в MVP. |
 | AutoMapper | Маппинг трёх DTO-уровней мал и прозрачен; вручную понятнее и без магии. |
 | CQRS-фреймворки | Разделение command/query — соглашение об именовании, не отдельный фреймворк. |
 | Generic Repository | Один `ITaskRepository` под конкретную сущность; generic-интерфейс добавит мёртвых методов. |

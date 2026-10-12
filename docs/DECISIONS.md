@@ -53,7 +53,7 @@
 ## ADR-004. Handlers вручную через DI, без MediatR
 
 **Дата:** 2026-10-12
-**Статус:** Принято
+**Статус:** Заменено на ADR-025
 
 **Контекст:** Как вызывать use case'ы.
 
@@ -83,7 +83,7 @@
 ## ADR-006. FluentValidation для входных DTO
 
 **Дата:** 2026-10-12
-**Статус:** Принято
+**Статус:** Заменено на ADR-025
 
 **Контекст:** Как валидировать входящие данные.
 
@@ -250,7 +250,7 @@
 ## ADR-017. Unit как тип-заглушка
 
 **Дата:** 2026-10-12
-**Статус:** Принято
+**Статус:** Заменено на ADR-025
 
 **Контекст:** Сценарии без результата (`DeleteTask`).
 
@@ -363,3 +363,42 @@
 - `TaskDto.Status` — `string`, конвертация в Handler'е. Теряется типобезопасность; знание о формате API протекает в Application; формат растекается по всем handler'ам.
 
 **Последствия:** Application оперирует enum'ом, сравнения типобезопасны. Формат статуса — в одном месте (API + `JsonStringEnumConverter`). `TaskDto` не готов к прямой сериализации — но он и не должен: между `TaskDto` и JSON всегда есть `TaskResponse`.
+
+## ADR-025. MediatR и pipeline behaviors
+
+**Дата:** 2026-10-12
+**Статус:** Принято
+**Заменяет:** ADR-004, ADR-006, ADR-017
+
+**Контекст:** Изначально handlers вызывались через свой интерфейс `IHandler<TRequest, TResponse>`, а валидация выполнялась внутри handler'а вручную (ADR-004, ADR-006). При переходе к Этапу 3 стало ясно, что валидация дублируется в каждом write-handler'е, а контроллер вынужден инжектить по одному handler'у на каждый сценарий. MediatR решает обе проблемы: единый `IMediator.Send`, pipeline behaviors для сквозной логики.
+
+**Решение:** Ввести MediatR. Request-модели реализуют `IRequest<TResponse>`, handlers — `IRequestHandler<TRequest, TResponse>`. Валидация вынесена в `ValidationBehavior<TRequest, TResponse>` — единая точка, работает для всех команд, у которых есть `IValidator<TRequest>`. Свой `IHandler` и свой `Unit` удалены, используется `MediatR.Unit`.
+
+**Альтернативы:**
+- Свой pipeline через декораторы `IHandler` — требует ручной регистрации декораторов для каждого handler'а, либо зависимость на Scrutor; по сути — повторение MediatR худшего качества.
+- Оставить валидацию внутри handler'а (ADR-006) — дублирование, ручной вызов в каждом write-handler'е.
+- MediatR без pipeline, только `Send` — теряется основная ценность MediatR.
+
+**Последствия:**
+- Контроллер зависит только от `IMediator`, а не от N handler'ов.
+- Валидация — единая, в `ValidationBehavior`, handler'ы о ней не знают.
+- Появляется внешняя зависимость (MediatR), «магия» `Send` — что именно произойдёт, видно только по DI-регистрации и pipeline.
+- `Unit` теперь из MediatR.
+- Handler'ы реализуют `IRequestHandler<TRequest, TResponse>` (не свой интерфейс).
+- Регистрация handler'ов автоматическая через `AddMediatR(...)`.
+
+## ADR-026. Исключение .editorconfig для миграций EF Core
+
+**Дата:** 2026-10-12
+**Статус:** Принято
+
+**Контекст:** EF Core генерирует миграции с block-scoped namespace. Наш `.editorconfig` требует file-scoped namespace (`csharp_style_namespace_declarations = file_scoped:warning` + `EnforceCodeStyleInBuild=true` + `TreatWarningsAsErrors=true`), из-за чего сгенерированные файлы ломают сборку (IDE0161).
+
+**Решение:** Добавить в `.editorconfig` исключение для папки `src/Backend/PS.TaskTracker/PS.TaskTracker.Infrastructure/Migrations/*.cs` — отключить правило IDE0161.
+
+**Альтернативы:**
+- Править namespace в каждом новом файле миграции вручную — трудозатратно, забывается, ломает авторегенерацию.
+- Отключить `TreatWarningsAsErrors` — слишком грубо, теряем контроль над всем проектом.
+- Отключить `EnforceCodeStyleInBuild` — теряем контроль стиля на CI.
+
+**Последствия:** Миграции EF Core не подчиняются правилу file-scoped namespace. Все остальные файлы — подчиняются. Новые миграции не требуют ручной правки.

@@ -17,7 +17,7 @@ public sealed class GetTaskHandler : IRequestHandler<GetTaskQuery, TaskDto>
 
     public async Task<TaskDto> Handle(GetTaskQuery request, CancellationToken cancellationToken)
     {
-        var task = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var task = await _repository.GetByIdReadOnlyAsync(request.Id, cancellationToken);
         if (task is null)
         {
             throw new NotFoundException($"Task with id {request.Id} was not found.");

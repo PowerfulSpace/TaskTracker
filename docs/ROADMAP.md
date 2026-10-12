@@ -5,15 +5,17 @@
 
 ## Текущий статус
 
-**Текущий этап:** 3 (Application), не начат.
+**Текущий этап:** 5 (API), не начат.
 
 **Что сделано:**
 - Этап 0: solution настроен (пять проектов, ссылки по Clean Architecture, централизованная конфигурация, сборка проходит).
 - Этап 1: закрыт. Созданы `AGENTS.md`, все документы `docs/` и обновлён `README.md`.
 - Этап 2: закрыт. Реализован Domain: `TaskItem`, `TaskItemStatus`, исключения, фабрика `Create`, переходы, `UpdateDetails`, unit-тесты (22 теста).
+- Этап 3: закрыт. Реализован Application: MediatR, handlers (7 команд + 2 запроса), `ValidationBehavior`, валидаторы, DTO, исключения, unit-тесты (22 теста).
+- Этап 4: закрыт. Реализован Infrastructure: `AppDbContext`, конфигурации, `TaskRepository`, `UnitOfWork`, `AddInfrastructure`, `AppDbContextFactory`, миграция `InitialCreate` (44 теста зелёные, `dotnet ef migrations list` показывает миграцию).
 
 **Что предстоит:**
-- Этап 3: реализация Application.
+- Этап 5: реализация API.
 
 ## Этапы
 
@@ -67,36 +69,36 @@
 
 **Критерий завершения:** Домен собирается, unit-тесты проходят, домен ни от кого не зависит.
 
-### Этап 3. Application — не начат
+### Этап 3. Application — выполнен
 
 **Цель:** Реализовать сценарии использования: handlers, интерфейсы инфраструктуры, DTO, валидацию.
 
 **Задачи:**
-- [ ] `IHandler<TRequest, TResponse>`.
-- [ ] `Unit`.
-- [ ] `ITaskRepository`, `IUnitOfWork`.
-- [ ] `TaskDto`.
-- [ ] Команды и запросы: `CreateTaskCommand`, `UpdateTaskCommand`, `DeleteTaskCommand`, `StartTaskCommand`, `CompleteTaskCommand`, `ReopenTaskCommand`, `ReturnTaskToTodoCommand`, `GetTaskQuery`, `GetTasksQuery`.
-- [ ] Handlers: по одному на сценарий.
-- [ ] FluentValidation-валидаторы.
-- [ ] `ValidationException`, `NotFoundException` (Application).
-- [ ] `DependencyInjection.AddApplication()`.
-- [ ] Тестовый проект `PS.TaskTracker.Application.Tests`.
-- [ ] Unit-тесты handlers с подменёнными `ITaskRepository` и `IUnitOfWork`.
+- [x] `ITaskRepository`, `IUnitOfWork`.
+- [x] `TaskDto`.
+- [x] Команды и запросы: `CreateTaskCommand`, `UpdateTaskCommand`, `DeleteTaskCommand`, `StartTaskCommand`, `CompleteTaskCommand`, `ReopenTaskCommand`, `ReturnTaskToTodoCommand`, `GetTaskQuery`, `GetTasksQuery`.
+- [x] Handlers: по одному на сценарий.
+- [x] FluentValidation-валидаторы.
+- [x] `ValidationException`, `NotFoundException` (Application).
+- [x] `DependencyInjection.AddApplication()`.
+- [x] MediatR: request-модели `IRequest<T>`, handlers `IRequestHandler`, pipeline `ValidationBehavior`.
+- [x] Тестовый проект `PS.TaskTracker.Application.Tests`.
+- [x] Unit-тесты handlers с подменёнными `ITaskRepository` и `IUnitOfWork`.
 
 **Критерий завершения:** Сценарии работают с моками, тесты проходят, Application не зависит от Infrastructure.
 
-### Этап 4. Infrastructure — не начат
+### Этап 4. Infrastructure — выполнен
 
 **Цель:** Подключить EF Core + MSSQL: контекст, конфигурации, репозиторий, UoW, миграции.
 
 **Задачи:**
-- [ ] `AppDbContext`.
-- [ ] `TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>`.
-- [ ] `TaskRepository : ITaskRepository`.
-- [ ] `UnitOfWork : IUnitOfWork`.
-- [ ] Миграции EF Core.
-- [ ] `DependencyInjection.AddInfrastructure(connectionString)`.
+- [x] `AppDbContext`.
+- [x] `TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>`.
+- [x] `TaskRepository : ITaskRepository`.
+- [x] `UnitOfWork : IUnitOfWork`.
+- [x] Миграции EF Core.
+- [x] `DependencyInjection.AddInfrastructure(connectionString)`.
+- [x] `AppDbContextFactory` для design-time (не был в исходном списке).
 
 **Критерий завершения:** БД создаётся миграцией, данные сохраняются и читаются.
 
