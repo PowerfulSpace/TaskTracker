@@ -402,3 +402,18 @@
 - Отключить `EnforceCodeStyleInBuild` — теряем контроль стиля на CI.
 
 **Последствия:** Миграции EF Core не подчиняются правилу file-scoped namespace. Все остальные файлы — подчиняются. Новые миграции не требуют ручной правки.
+
+## ADR-027. Swashbuckle.AspNetCore вместо Microsoft.AspNetCore.OpenApi
+
+**Дата:** 2026-10-13
+**Статус:** Принято
+
+**Контекст:** В API изначально стоял `Microsoft.AspNetCore.OpenApi` — новый минималистичный пакет от Microsoft. Он даёт `AddOpenApi()` / `MapOpenApi()`, но не имеет UI. Для интерактивной проверки endpoints нужен Swagger UI.
+
+**Решение:** Заменить `Microsoft.AspNetCore.OpenApi` на `Swashbuckle.AspNetCore`. Swashbuckle даёт полный набор: `AddSwaggerGen()`, `UseSwagger()`, `UseSwaggerUI()`.
+
+**Альтернативы:**
+- Оставить `Microsoft.AspNetCore.OpenApi` + добавить отдельный UI-пакет — два пакета для одной задачи.
+- NSwag — другая библиотека, менее распространена в .NET 10.
+
+**Последствия:** Один пакет вместо двух. Swagger UI доступен в Development. Стандартный подход, широко используется.
