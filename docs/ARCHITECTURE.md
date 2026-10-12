@@ -42,7 +42,7 @@ ARCHITECTURE описывает, как устроен код: слои, зав�
 В `PS.TaskTracker.Domain` лежит:
 
 - `TaskItem`, `TaskItemStatus` — сущность и enum статусов;
-- `DomainException`, `DomainValidationException`, `DomainConflictException` — исключения домена.
+- `DomainException`, `DomainValidationException`, `DomainConflictException` — исключения домена, в подпапке `Exceptions/`, namespace `PS.TaskTracker.Domain.Exceptions`.
 
 Не лежит (и не должно появляться): EF Core, DbContext, атрибуты, репозитории, `DateTime.UtcNow`, `ILogger`, `JsonConverter`, DTO, что-либо из ASP.NET Core.
 
@@ -191,12 +191,12 @@ TaskItem (Domain)                TaskDto (Application)         TaskResponse (HTT
   Id: Guid                  →     Id: Guid                 →     id: Guid
   Title: string             →     Title: string            →     title: string
   Description: string?      →     Description: string?     →     description: string?
-  Status: TaskItemStatus    →     Status: string           →     status: string
+  Status: TaskItemStatus    →     Status: TaskItemStatus   →     status: string
   CreatedAtUtc: DateTime    →     CreatedAtUtc: DateTime   →     createdAtUtc: DateTime
   UpdatedAtUtc: DateTime    →     UpdatedAtUtc: DateTime   →     updatedAtUtc: DateTime
 ```
 
-Enum → string выполняется в Handler'е при формировании `TaskDto` (`Status: string`). Глобальный `JsonStringEnumConverter` в API — страховка на случай, если enum попадёт в JSON напрямую (см. ADR-011).
+TaskDto.Status — TaskItemStatus (enum). Enum → string выполняется на уровне API при маппинге TaskDto → TaskResponse; глобальный JsonStringEnumConverter (ADR-011) сериализует enum как строку. Application не знает про строковое представление статуса — это деталь HTTP-контракта.
 
 ## 11. Правила именования
 
@@ -210,7 +210,7 @@ Enum → string выполняется в Handler'е при формирован
 | Валидатор | Application | `*Validator` | `CreateTaskValidator` |
 | Репозиторий | Application (интерфейс), Infrastructure (реализация) | `I*Repository`, `*Repository` | `ITaskRepository`, `TaskRepository` |
 | UoW | Application (интерфейс), Infrastructure (реализация) | `IUnitOfWork`, `UnitOfWork` | — |
-| Исключения домена | Domain | `Domain*Exception` | `DomainValidationException` |
+| Исключения домена | Domain (папка `Exceptions/`, namespace `PS.TaskTracker.Domain.Exceptions`) | `Domain*Exception` | `DomainValidationException` |
 | Исключения приложения | Application | `ValidationException`, `NotFoundException` | — |
 | Конфигурация EF | Infrastructure | `*Configuration` | `TaskItemConfiguration` |
 | Точка входа DI | Application, Infrastructure | `DependencyInjection.Add*` | `AddApplication`, `AddInfrastructure` |

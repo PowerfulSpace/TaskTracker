@@ -5,14 +5,15 @@
 
 ## Текущий статус
 
-**Текущий этап:** 2 (Domain), не начат.
+**Текущий этап:** 3 (Application), не начат.
 
 **Что сделано:**
 - Этап 0: solution настроен (пять проектов, ссылки по Clean Architecture, централизованная конфигурация, сборка проходит).
 - Этап 1: закрыт. Созданы `AGENTS.md`, все документы `docs/` и обновлён `README.md`.
+- Этап 2: закрыт. Реализован Domain: `TaskItem`, `TaskItemStatus`, исключения, фабрика `Create`, переходы, `UpdateDetails`, unit-тесты (22 теста).
 
 **Что предстоит:**
-- Этап 2: реализация Domain.
+- Этап 3: реализация Application.
 
 ## Этапы
 
@@ -49,20 +50,20 @@
 
 **Критерий завершения:** Все документы согласованы, README.md не пустой, ссылки в PROJECT.md актуальны.
 
-### Этап 2. Domain — не начат
+### Этап 2. Domain — выполнен
 
 **Цель:** Реализовать ядро: сущность `TaskItem`, статусы, инварианты, исключения — без зависимостей.
 
 **Задачи:**
-- [ ] `TaskItemStatus` — enum.
-- [ ] `TaskItem` — сущность с приватными сеттерами.
-- [ ] Фабричный метод `TaskItem.Create`.
-- [ ] Методы переходов: `Start`, `Complete`, `Reopen`, `ReturnToTodo`.
-- [ ] Метод `UpdateDetails`.
-- [ ] Исключения: `DomainException`, `DomainValidationException`, `DomainConflictException`.
-- [ ] Инварианты: `Title` ≤ 200, `Description` ≤ 2000.
-- [ ] Тестовый проект `PS.TaskTracker.Domain.Tests` (xUnit + NSubstitute).
-- [ ] Unit-тесты на создание, инварианты, все переходы, идемпотентность `Complete` на `Done`.
+- [x] `TaskItemStatus` — enum.
+- [x] `TaskItem` — сущность с приватными сеттерами.
+- [x] Фабричный метод `TaskItem.Create`.
+- [x] Методы переходов: `Start`, `Complete`, `Reopen`, `ReturnToTodo`.
+- [x] Метод `UpdateDetails`.
+- [x] Исключения: `DomainException`, `DomainValidationException`, `DomainConflictException`.
+- [x] Инварианты: `Title` ≤ 200, `Description` ≤ 2000.
+- [x] Тестовый проект `PS.TaskTracker.Domain.Tests` (xUnit + NSubstitute).
+- [x] Unit-тесты на создание, инварианты, все переходы, идемпотентность `Complete` на `Done`.
 
 **Критерий завершения:** Домен собирается, unit-тесты проходят, домен ни от кого не зависит.
 

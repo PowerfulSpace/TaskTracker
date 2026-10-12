@@ -96,7 +96,7 @@ Domain не доверяет Application: двойная валидация — 
 
 ## 7. Ошибки домена
 
-В Domain три типа исключений, все живут в `PS.TaskTracker.Domain`:
+В Domain три типа исключений, все живут в `PS.TaskTracker.Domain.Exceptions`:
 
 | Исключение | Когда | HTTP-статус (маппит Middleware) |
 |---|---|---|
@@ -111,7 +111,7 @@ Domain не доверяет Application: двойная валидация — 
 `DomainConflictException`:
 
 - `Cannot start task in status Done.`
-- `Cannot complete task in status Todo.`
+- `Cannot complete task in status {Status}.` — где `{Status}` — текущий статус задачи.
 - `Cannot reopen task in status Todo.`
 - `Cannot return task to todo in status Done.`
 
