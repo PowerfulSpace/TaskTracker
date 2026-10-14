@@ -6,6 +6,32 @@
 Управление задачами с переходами статусов: Todo → InProgress → Done.
 Backend и Frontend MVP завершены.
 
+## Жизненный цикл задачи
+
+Задача проходит через три статуса:
+
+- **Todo** — «надо сделать».
+- **InProgress** — «делаю сейчас».
+- **Done** — «сделано».
+
+```mermaid
+stateDiagram-v2
+    [*] --> Todo
+    Todo --> InProgress: Start
+    InProgress --> Done: Complete
+    InProgress --> Todo: Reset
+    Done --> InProgress: Reopen
+```
+
+Переходы:
+
+- **Start** — начать работу.
+- **Complete** — завершить.
+- **Reset** — отложить, вернуться позже.
+- **Reopen** — возобновить работу.
+
+Детали переходов, инварианты и идемпотентность Complete на Done — в `docs/DOMAIN.md`.
+
 ## Стек
 
 | Область | Технология |

@@ -64,6 +64,16 @@ Enum `TaskItemStatus`, живёт в Domain:
 
 ## 5. Переходы статусов
 
+```mermaid
+stateDiagram-v2
+    [*] --> Todo
+    Todo --> InProgress: Start()
+    InProgress --> Done: Complete()
+    InProgress --> Todo: ReturnToTodo()
+    Done --> InProgress: Reopen()
+    Done --> Done: Complete() (идемпотентно)
+```
+
 | Метод | Исходный статус | Результирующий | При недопустимом вызове |
 |---|---|---|---|
 | `Start()` | `Todo` | `InProgress` | `DomainConflictException` |
