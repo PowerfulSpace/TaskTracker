@@ -2,10 +2,9 @@
 
 ## 1. Что это
 
-Task Tracker — учебный backend-проект для практики Clean Architecture, EF Core, тестирования и совместной работы с AI-агентом.
+Task Tracker — учебный проект для практики Clean Architecture, EF Core, тестирования и совместной работы с AI-агентом.
 Цель — наработать процесс: сначала документация, потом код, итерациями и без лишних абстракций.
-В результате получится backend MVP (CRUD задач) и отдельный frontend на Vue 3 после прохождения MVP.
-Проект состоит из двух частей: backend (реализован) и frontend (в разработке).
+Проект состоит из двух частей: backend (реализован) и frontend на Vue 3 (реализован). Обе части образуют MVP.
 
 ## 2. Стек
 
@@ -30,17 +29,22 @@ TaskTracker/
 ├── global.json
 ├── .editorconfig
 ├── docs/
-└── src/
-    ├── Backend/
-    │   └── PS.TaskTracker/
-    │       ├── PS.TaskTracker.slnx
-    │       ├── PS.TaskTracker.API/
-    │       ├── PS.TaskTracker.Application/
-    │       ├── PS.TaskTracker.Common/
-    │       ├── PS.TaskTracker.Domain/
-    │       └── PS.TaskTracker.Infrastructure/
-    └── Frontend/
-        └── PS.TaskTracker/   — frontend на Vue 3
+├── scripts/              — verify.sh, verify.ps1
+├── src/
+│   ├── Backend/
+│   │   └── PS.TaskTracker/
+│   │       ├── PS.TaskTracker.slnx
+│   │       ├── PS.TaskTracker.API/
+│   │       ├── PS.TaskTracker.Application/
+│   │       ├── PS.TaskTracker.Common/
+│   │       ├── PS.TaskTracker.Domain/
+│   │       └── PS.TaskTracker.Infrastructure/
+│   └── Frontend/
+│       └── PS.TaskTracker/   — frontend на Vue 3
+└── tests/
+    └── Backend/
+        ├── PS.TaskTracker.Domain.Tests/
+        └── PS.TaskTracker.Application.Tests/
 ```
 
 Назначение слоёв:

@@ -30,6 +30,8 @@ stateDiagram-v2
 - **Reset** — отложить, вернуться позже.
 - **Reopen** — возобновить работу.
 
+Endpoint `Reset` вызывает доменный метод `ReturnToTodo()` — это один и тот же переход `InProgress → Todo`.
+
 Детали переходов, инварианты и идемпотентность Complete на Done — в `docs/DOMAIN.md`.
 
 ## Стек
@@ -42,6 +44,7 @@ stateDiagram-v2
 | Валидация | FluentValidation |
 | Тесты | xUnit + NSubstitute |
 | API-документация | OpenAPI / Swagger UI |
+| Frontend | Vue 3 + TypeScript + Vite + Pinia + Naive UI |
 
 ## Структура репозитория
 
@@ -49,11 +52,14 @@ stateDiagram-v2
 TaskTracker/
 ├── AGENTS.md          — правила работы агента
 ├── docs/              — проектная документация
-└── src/
-    ├── Backend/
-    │   └── PS.TaskTracker/   — solution backend'а
-    └── Frontend/
-        └── PS.TaskTracker/   — frontend на Vue 3
+├── scripts/           — verify.sh, verify.ps1
+├── src/
+│   ├── Backend/
+│   │   └── PS.TaskTracker/   — solution backend'а
+│   └── Frontend/
+│       └── PS.TaskTracker/   — frontend на Vue 3
+└── tests/
+    └── Backend/       — тесты: Domain.Tests, Application.Tests
 ```
 
 ## Документация
@@ -66,6 +72,7 @@ TaskTracker/
 | [docs/DOMAIN.md](docs/DOMAIN.md) | Доменная модель |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Слои и зависимости |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Журнал архитектурных решений |
+| [docs/FRONTEND.md](docs/FRONTEND.md) | Стек и структура frontend |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | План разработки |
 
 ## Текущий статус
@@ -77,7 +84,7 @@ Backend и Frontend MVP завершены (Этапы 0–7). Все 44 тес�
 ### Требования
 
 - **.NET 10 SDK** — именно SDK, не только Runtime. Версия `10.0.4XX` или новее в линии 10.0. Проверить: `dotnet --list-sdks`.
-- **Node.js 22+** и npm.
+- **Node.js 22.18–22.x или 24.12+** (рекомендуется 24 LTS) и npm.
 - **SQL Server** (Developer или Express), локальный инстанс.
 - **dotnet-ef** — глобальный инструмент: `dotnet tool install --global dotnet-ef`.
 

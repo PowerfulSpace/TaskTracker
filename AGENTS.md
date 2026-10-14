@@ -2,7 +2,7 @@
 
 ## 1. О проекте
 
-Task Tracker — учебный backend-проект для практики Clean Architecture, EF Core и тестирования.
+Task Tracker — учебный проект для практики Clean Architecture, EF Core и тестирования.
 Solution: `src/Backend/PS.TaskTracker/PS.TaskTracker.slnx`.
 Пять слоёв: `PS.TaskTracker.Domain`, `PS.TaskTracker.Common`, `PS.TaskTracker.Application`, `PS.TaskTracker.Infrastructure`, `PS.TaskTracker.API`.
 Направление зависимостей — от API к Domain, обратных ссылок нет.
@@ -25,6 +25,7 @@ Solution: `src/Backend/PS.TaskTracker/PS.TaskTracker.slnx`.
 | `docs/ARCHITECTURE.md` | Слои, зависимости, ответственность |
 | `docs/DECISIONS.md` | Журнал архитектурных решений |
 | `docs/ROADMAP.md` | Этапы разработки с чекбоксами |
+| `docs/FRONTEND.md` | Стек, структура, архитектура frontend |
 
 Документы в `docs/` создаются по мере продвижения проекта.
 Перед работой над областью обязательно прочитай соответствующий документ из `docs/`; если его ещё нет — сообщи об этом и продолжай только после уточнения.

@@ -17,7 +17,7 @@ Frontend приложения Task Tracker: UI для управления за�
 | Naive UI | 2.45 | Компоненты UI |
 | axios | 1.20 | HTTP-клиент |
 | ESLint + oxlint + Prettier | — | Линтинг и форматирование |
-| Node.js | 24 (LTS) | Рантайм инструментов |
+| Node.js | 22.18–22.x или 24.12+ (рекомендуется 24 LTS) | Рантайм инструментов |
 
 ## 3. Структура репозитория
 
@@ -81,5 +81,5 @@ src/Frontend/PS.TaskTracker/
 
 ## 8. Навигация
 
-- API-контракт и ошибки — [docs/SPEC.md](SPEC.md).
-- Архитектурные решения — [docs/DECISIONS.md](DECISIONS.md) (ADR-028, ADR-029, ADR-030).
+- API-контракт и ошибки — [SPEC.md](SPEC.md).
+- Архитектурные решения — [DECISIONS.md](DECISIONS.md) (ADR-028, ADR-029, ADR-030).

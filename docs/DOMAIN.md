@@ -139,7 +139,7 @@ Domain не доверяет Application: двойная валидация — 
 
 Что делает:
 
-- валидирует `Title` и `Description` по тем же инвариантым, что и `Create` (при нарушении бросается `DomainValidationException`);
+- валидирует `Title` и `Description` по тем же инвариантам, что и `Create` (при нарушении бросается `DomainValidationException`);
 - обновляет `Title`, `Description`;
 - обновляет `UpdatedAtUtc` на переданное `utcNow`.
 

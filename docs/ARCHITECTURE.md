@@ -83,7 +83,7 @@ public TasksController(IMediator mediator)
 
 ### Валидация
 
-FluentValidation-валидаторы живут в Application рядом с handler'ом. Валидаторы вызываются автоматически через `ValidationBehavior` в pipeline MediatR. Handler'ы о валидации не знают. При нарушении бросается `ValidationException` (Application-уровень, свой тип — не путать с `DomainValidationException` из Domain). Middleware маппит её в `400` + ProblemDetails + `errors`.
+FluentValidation-валидаторы живут в Application рядом с handler'ами. Валидаторы вызываются автоматически через `ValidationBehavior` в pipeline MediatR. Handler'ы о валидации не знают. При нарушении бросается `ValidationException` (Application-уровень, свой тип — не путать с `DomainValidationException` из Domain). Middleware маппит её в `400` + ProblemDetails + `errors`.
 
 ## 6. Infrastructure
 
@@ -110,7 +110,7 @@ FluentValidation-валидаторы живут в Application рядом с ha
 - Controllers (`TasksController`);
 - HTTP-DTO: `CreateTaskRequest`, `UpdateTaskRequest`, `TaskResponse`;
 - `ExceptionHandlingMiddleware` — ловит исключения, возвращает ProblemDetails (RFC 7807);
-- Вызов `AddApplication()` и `AddInfrastructure()` из `Program.cs` (реализации методов живут в Application и Infrastructure соответственно, см. §6 и §11);
+- Вызов `AddApplication()` и `AddInfrastructure()` из `Program.cs` (реализация — в Application (§5) и Infrastructure (§6), общая точка регистрации — §11);
 - Настройка JSON: глобальный `JsonStringEnumConverter`, чтобы `TaskItemStatus` сериализовался как `"Todo"`, `"InProgress"`, `"Done"`;
 - Swagger/OpenAPI.
 
