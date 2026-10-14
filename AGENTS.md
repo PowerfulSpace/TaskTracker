@@ -134,3 +134,11 @@ Frontend (`src/Frontend/PS.TaskTracker/`) — отдельное приложе�
 Результат проверки включи в отчёт (пункты 2 и 3 формата из §8).
 
 Если задача не связана с кодом (например, правка документации), скрипт можно не запускать — укажи это в отчёте.
+
+## 13. Особенности Windows-окружения
+
+Известные ловушки и их решения:
+
+- **`Start-Process -FilePath "npm"`** не запускает npm (открывает Notepad, т.к. npm — `.cmd`-скрипт). Использовать: `Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm ..."`.
+- **`curl` в PowerShell** — алиас `Invoke-WebRequest`, не настоящий curl. Использовать `curl.exe` с явным расширением.
+- **`global.json` и SDK** — если `dotnet build` падает с `NETSDK1141`, проверить `dotnet --list-sdks`. Проект требует .NET 10 SDK (не Runtime).

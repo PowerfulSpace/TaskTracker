@@ -2,9 +2,9 @@
 
 ## О проекте
 
-Учебный backend-проект для практики Clean Architecture, EF Core и тестирования.
+Учебный проект для практики Clean Architecture, EF Core и тестирования.
 Управление задачами с переходами статусов: Todo → InProgress → Done.
-Backend MVP завершён. Следующий этап — frontend на Vue 3.
+Backend и Frontend MVP завершены.
 
 ## Стек
 
@@ -44,16 +44,16 @@ TaskTracker/
 
 ## Текущий статус
 
-Backend MVP завершён (Этапы 0–6). Все 44 теста зелёные, 14 сценариев API проверены через curl. Следующий этап — frontend на Vue 3.
-Детали — в [docs/ROADMAP.md](docs/ROADMAP.md).
+Backend и Frontend MVP завершены (Этапы 0–7). Все 44 теста зелёные, сценарии API и UI проверены. Детали — в [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Запуск
 
 ### Требования
 
-- .NET 10 SDK
-- SQL Server (Developer или Express), локальный инстанс
-- `dotnet-ef` (глобальный инструмент): `dotnet tool install --global dotnet-ef`
+- **.NET 10 SDK** — именно SDK, не только Runtime. Версия `10.0.4XX` или новее в линии 10.0. Проверить: `dotnet --list-sdks`.
+- **Node.js 22+** и npm.
+- **SQL Server** (Developer или Express), локальный инстанс.
+- **dotnet-ef** — глобальный инструмент: `dotnet tool install --global dotnet-ef`.
 
 ### Шаги
 
@@ -89,3 +89,28 @@ dotnet test
 
 - Windows: `.\scripts\verify.ps1`
 - Linux / macOS: `./scripts/verify.sh`
+
+## Frontend
+
+Frontend — отдельное приложение на Vue 3.
+
+### Запуск
+
+1. Установить зависимости:
+
+   ```text
+   cd src/Frontend/PS.TaskTracker
+   npm install
+   ```
+
+2. Запустить dev-сервер:
+
+   ```text
+   npm run dev
+   ```
+
+3. Открыть: http://localhost:5173
+
+Backend должен быть запущен на `http://localhost:5029` (см. `.env.development`).
+
+Детали — в `docs/FRONTEND.md`.

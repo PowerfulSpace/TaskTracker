@@ -5,7 +5,7 @@
 
 ## Текущий статус
 
-**Текущий этап:** 6 (проверка MVP) — выполнен. Backend MVP готов.
+**Текущий этап:** 7 (Frontend) — выполнен. Backend + Frontend MVP готовы.
 
 **Что сделано:**
 - Этап 0: solution настроен (пять проектов, ссылки по Clean Architecture, централизованная конфигурация, сборка проходит).
@@ -15,9 +15,10 @@
 - Этап 4: закрыт. Реализован Infrastructure: `AppDbContext`, конфигурации, `TaskRepository`, `UnitOfWork`, `AddInfrastructure`, `AppDbContextFactory`, миграция `InitialCreate` (44 теста зелёные, `dotnet ef migrations list` показывает миграцию).
 - Этап 5: закрыт. Реализован API: `TasksController` (CRUD + endpoints переходов статусов), HTTP-DTO, `ExceptionHandlingMiddleware`, `JsonStringEnumConverter`, Swagger (Swashbuckle), DI из `Program.cs`, строка подключения в `appsettings.Development.json`.
 - Этап 6: закрыт. Проверка MVP: миграция применена, Swagger UI отвечает (9 endpoints), 14/14 сценариев через `curl` (CRUD, переходы, ошибочные), инструкция запуска в `README.md`.
+- Этап 7: закрыт. Frontend на Vue 3: проект (Vue 3 + TypeScript + Vite + Pinia + Router + Naive UI + axios), `.env.development`, документация (`docs/FRONTEND.md`, ADR-028/029/030), каркас (типы, Pinia-стор, сервис API), UI (список задач, форма создания/редактирования, кнопки переходов статусов, удаление с подтверждением), обработка ошибок ProblemDetails → уведомления Naive UI, ручная проверка CRUD и переходов через UI.
 
 **Что предстоит:**
-- Этап 7: Frontend на Vue 3.
+—
 
 ## Этапы
 
@@ -137,7 +138,7 @@
 
 **Критерий завершения:** Backend MVP работает, документация соответствует реализации, инструкция воспроизводима.
 
-### Этап 7. Frontend — не начат
+### Этап 7. Frontend — выполнен
 
 **Цель:** Реализовать frontend на Vue 3, подключить к API, обеспечить управление задачами через UI.
 
@@ -145,11 +146,11 @@
 
 - [x] 7.1. Создание проекта: Vue 3 + TypeScript + Vite + Pinia + Router + Naive UI + axios.
 - [x] 7.2. Чистка шаблонного мусора, настройка `.env.development`, README.
-- [ ] 7.3. Документация: `docs/FRONTEND.md`, ADR-028/029/030.
-- [ ] 7.4. Каркас: типы (`types/task.ts`), Pinia-стор (`stores/tasks.ts`), сервис (`services/api/tasksService.ts`).
-- [ ] 7.5. UI: `TasksPage.vue` (список), `TaskFormModal.vue` (создание/редактирование), кнопки переходов статусов, подтверждение удаления.
-- [ ] 7.6. Обработка ошибок: маппинг `ProblemDetails` → уведомления Naive UI.
-- [ ] 7.7. Проверка: запуск backend + frontend, ручной прогон CRUD и переходов статусов.
+- [x] 7.3. Документация: `docs/FRONTEND.md`, ADR-028/029/030.
+- [x] 7.4. Каркас: типы (`types/task.ts`), Pinia-стор (`stores/tasks.ts`), сервис (`services/api/tasksService.ts`).
+- [x] 7.5. UI: `TasksPage.vue` (список), `TaskFormModal.vue` (создание/редактирование), кнопки переходов статусов, подтверждение удаления.
+- [x] 7.6. Обработка ошибок: маппинг `ProblemDetails` → уведомления Naive UI.
+- [x] 7.7. Проверка: запуск backend + frontend, ручной прогон CRUD и переходов статусов.
 
 **Критерий завершения:** Все сценарии CRUD и переходов статусов работают через UI, ошибки отображаются корректно.
 
